@@ -10,6 +10,7 @@
     ></script>
     <link rel="stylesheet" href="style.css" />
     <script src="script.js"></script>
+    <script src="github.js"></script>
   </head>
 
   <body ng-controller="MainController">
@@ -17,6 +18,8 @@
 
     <div>{{error}}</div>
 
+    {{ countdownMessage}}
+    {{ countdown }}
     <form name="searchUser" ng-submit="search(username)">
       <input
         type="search"

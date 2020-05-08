@@ -2,36 +2,66 @@
   // Create a module with a name
   var app = angular.module('githubViewer', []);
 
-  var MainController = function($scope, $http) {
-    var onUserComplete = function(response) {
-      $scope.user = response.data;
+  var MainController = function(
+    $scope, github, $interval, $log, $anchorScroll, $location) {
+      
+    var onUserComplete = function(data) {
+      $scope.user = data;
       $scope.error = '';
-      $http.get($scope.user.repos_url)
+      github.getRepos($scope.user)
         .then(onRepos, onError);
     };
 
-    var onRepos = function(response){
-      $scope.user.repos = response.data;
+    var onRepos = function(data){
+      $scope.user.repos = data;
+      $location.hash("userDetails");
+      $anchorScroll();
     }
 
     var onError = function(reason) {
       $scope.error = 'WHOOPSIE!! Could not fetch the data';
     };
 
+    var decrementCountdown = function(){
+      $scope.countdown -= 1;
+      if ($scope.countdown < 1) {
+        $scope.search($scope.username);
+        $scope.countdownMessage = "Too slow!";
+      }
+    };
+
+    var countdownInterval = null;
+    var startCountdown = function() {
+      countdownInterval = $interval(decrementCountdown, 1000, $scope.countdown);
+    };
+
     $scope.search = function(username) {
-      $http
-        .get('https://api.github.com/users/' + username)
-        .then(onUserComplete, onError);
+      $log.info("Searching for " + username)
+      github.getUser(username).then(onUserComplete, onError);
+      if (countdownInterval) {
+        $interval.cancel(countdownInterval);
+        $scope.countdown = null;
+        if ($scope.countdownMessage != "Too slow!") {
+          $scope.countdownMessage = "Way to go, Gunslinger!";
+        }
+      }
     };
     
     $scope.message = 'Github Viewer';
+    $scope.repoSortOrder = "-stargazers_count";
+    $scope.countdown = 5;
+    $scope.countdownMessage = "Can you beat the timer?";
+    startCountdown();
+    
+
   };
 
   // Register your controllers in the module
+  app.controller('MainController', MainController);
   /* 
-    Due to minification, we will use an array instead of just the function
+    Due to minification, we can use an array instead of just the function
     name. The function name will go last, and the full parameter names will
     preceede as strings.
   */
-  app.controller('MainController', ['$scope', '$http', MainController]);
+  // app.controller('MainController', ['$scope', 'github', '$interval', '$log', '$anchorScroll', '$location', MainController]);
 })();
