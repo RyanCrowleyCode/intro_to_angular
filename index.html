@@ -15,14 +15,19 @@
   <body ng-controller="MainController">
     <h1>{{message}}</h1>
 
-    <div>
-      {{error}}
-    </div>
+    <div>{{error}}</div>
 
-    <div>Name: {{user.name}}</div>
-    <div>Location: {{user.location}}</div>
-    <div>
-      <img ng-src="{{user.avatar_url}}" title="{{user.name}}" />
-    </div>
+    <form name="searchUser" ng-submit="search(username)">
+      <input
+        type="search"
+        required
+        placeholder="Username to find"
+        ng-model="username"
+      />
+      <input type="submit" value="Search" />
+    </form>
+
+    <div ng-include="'userdetails.html'" ng-show="user"></div>
+    
   </body>
 </html>
